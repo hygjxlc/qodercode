@@ -11,8 +11,8 @@ schema: spec-driven
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
-# Add custom rules for specific artifacts.
-# Add custom rules for specific artifacts.
+# Add custom rules <<<<<<<<<>>>>>>>>>>
+# Add custom rules <<<<<<<<>>>>>>>>>>>>
 # Add custom rules for specific artifacts.
 # Add custom rules for specific artifacts.
 # Example:
