@@ -136,3 +136,8 @@ Main specs are now updated. The change remains active - archive when implementat
 - If something is unclear, ask for clarification
 - Show what you're changing as you go
 - The operation should be idempotent - running twice should give same result
+
+**add codes**
+- Read 
+- write
+- If something 
