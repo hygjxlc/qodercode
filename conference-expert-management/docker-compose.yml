@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: expert-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: conference_expert_management
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - expert-network
+
+  backend:
+    build: ./backend
+    container_name: expert-backend
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/conference_expert_management?useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root123
+    ports:
+      - "8080:8080"
+    networks:
+      - expert-network
+
+  frontend:
+    build: ./frontend
+    container_name: expert-frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - expert-network
+
+volumes:
+  mysql-data:
+
+networks:
+  expert-network:
+    driver: bridge
