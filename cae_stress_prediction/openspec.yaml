@@ -1,0 +1,105 @@
+openspec: v1
+kind: NeuralNetwork
+name: cae_stress_prediction_mlp
+version: 1.0.0
+description: 基于几何、材料、载荷的CAE结构应力预测神经网络
+domain: CAE / 结构力学 / 仿真代理模型
+
+# ————————————————————————————
+# 神经网络结构（可直接生成 PyTorch / TensorFlow 代码）
+# ————————————————————————————
+network:
+  type: sequential
+  layers:
+    - name: input_layer
+      type: Input
+      shape: [ null, 6 ]  # batch_size × 6 维输入特征
+
+    - name: dense_block_1
+      type: Dense
+      units: 256
+      activation: silu
+      kernel_initializer: he_uniform
+
+    - name: dropout_1
+      type: Dropout
+      rate: 0.1
+
+    - name: dense_block_2
+      type: Dense
+      units: 128
+      activation: silu
+
+    - name: dense_block_3
+      type: Dense
+      units: 64
+      activation: silu
+
+    - name: output_layer
+      type: Dense
+      units: 1
+      activation: linear
+      description: 输出最大应力值（MPa）
+
+# ————————————————————————————
+# 模型输入定义（CAE 仿真常用 6 维特征）
+# ————————————————————————————
+input:
+  type: tensor
+  dtype: float32
+  shape: [ batch, 6 ]
+  description: |
+    输入特征顺序：
+    0: 长度 (mm)
+    1: 宽度 (mm)
+    2: 厚度 (mm)
+    3: 弹性模量 (GPa)
+    4: 泊松比
+    5: 载荷大小 (N)
+
+# ————————————————————————————
+# 模型输出定义
+# ————————————————————————————
+output:
+  type: tensor
+  dtype: float32
+  shape: [ batch, 1 ]
+  description: 结构最大等效应力 (MPa)
+
+# ————————————————————————————
+# 训练配置（可直接用于训练脚本）
+# ————————————————————————————
+training:
+  framework: pytorch
+  optimizer:
+    name: Adam
+    lr: 0.0005
+    weight_decay: 1e-5
+  loss:
+    name: SmoothL1Loss
+  metrics:
+    - MAE
+    - MSE
+    - RMSE
+    - R2Score
+  batch_size: 64
+  max_epochs: 200
+
+# ————————————————————————————
+# 调用接口（Qoder/CAE SDK 直接调用）
+# ————————————————————————————
+interfaces:
+  - name: predict
+    type: http
+    method: POST
+    path: /api/predict/stress
+    content_type: application/json
+
+  - name: predict_cli
+    type: cli
+    command: python predict.py --input input.json --output result.json
+
+  - name: model_info
+    type: http
+    method: GET
+    path: /api/model/openspec
